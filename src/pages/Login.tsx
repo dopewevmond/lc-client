@@ -34,7 +34,7 @@ export const LoginPage = () => {
               }}
             >
               {({ isSubmitting }) => (
-                <Form className="space-y-2 md:space-y-3">
+                <Form className="space-y-2 md:space-y-3" data-testid="login-form">
                   <div>
                     <InputWrapper
                       label="Username"
@@ -56,6 +56,7 @@ export const LoginPage = () => {
                     />
                   </div>
                   <button
+                    data-testid="login-button"
                     type="submit"
                     className={`w-full font-medium rounded-lg text-sm px-5 py-2.5 text-center ${
                       isSubmitting
@@ -77,6 +78,7 @@ export const LoginPage = () => {
                   <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                     Don&apos;t have an account yet?&nbsp;
                     <Link
+                      data-testid="signup-link"
                       to="/signup"
                       className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                     >

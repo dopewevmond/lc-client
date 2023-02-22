@@ -3,6 +3,8 @@ import { Authguard } from "./components/Authguard";
 import { LoginPage } from "./pages/Login";
 import { HomePage } from "./pages/Home";
 import { SignupPage } from "./pages/Signup";
+import { CurrentChat } from "./components/CurrentChat";
+import { OpenChatPlaceholder } from "./components/ChatPlaceholder";
 
 export const Router = () =>
   useRoutes([
@@ -12,7 +14,17 @@ export const Router = () =>
       children: [
         {
           element: <HomePage />,
-          index: true,
+          path: "/",
+          children: [
+            {
+              element: <OpenChatPlaceholder />,
+              index: true,
+            },
+            {
+              path: "chat/:id",
+              element: <CurrentChat />,
+            },
+          ],
         },
       ],
     },

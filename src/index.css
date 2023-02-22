@@ -5,3 +5,12 @@
 html.dark {
   color-scheme: dark;
 }
+
+.sidebar-fill-remaining-height {
+  height: calc(100vh - 7.5rem); /* total height - height of search and profile div on sidebar */
+}
+
+.slide-transition {
+  transition-duration: 200ms;
+  transition-timing-function: ease-out;
+}

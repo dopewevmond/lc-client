@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import authSliceReducer from "./authSlice";
+import chatSliceReducer from "./chatSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authSliceReducer,
+    chat: chatSliceReducer,
   },
   middleware(getDefaultMiddleware) {
     return getDefaultMiddleware({ serializableCheck: false });
