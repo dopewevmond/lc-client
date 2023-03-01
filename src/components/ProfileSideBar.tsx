@@ -5,7 +5,7 @@ import type { IUser } from "../types";
 import { axiosInstance } from "../utils/axiosInstance";
 import { EditableInput } from "./EditableInput";
 
-export const ProfileSideBar = () => {
+export const ProfileSideBar = ({ isOpened }: { isOpened: boolean }) => {
   const id = useAppSelector(selectAuthId);
   const token = useAppSelector(selectAuthToken);
   const [loadingProfileDetails, setLoadingProfileDetails] = useState(false);
@@ -51,32 +51,34 @@ export const ProfileSideBar = () => {
       <div className="p-4">
         <div className="h-48 w-48 bg-primary-700 mx-auto rounded-full mb-4"></div>
 
-        <div className="mb-3">
-          <EditableInput
-            updateFieldWithAPI={updateField}
-            initialFieldValue={username}
-            setFieldValue={setUserName}
-            fieldName="username"
-            label="Username"
-          />
-        </div>
-        <div className="mb-3">
-          <EditableInput
-            updateFieldWithAPI={updateField}
-            initialFieldValue={displayName}
-            setFieldValue={setDisplayName}
-            fieldName="displayName"
-            label="Display Name"
-          />
-        </div>
-        <div className="mb-3">
-          <EditableInput
-            updateFieldWithAPI={updateField}
-            initialFieldValue={bio}
-            setFieldValue={setBio}
-            fieldName="bio"
-            label="Bio"
-          />
+        <div className={''}>
+          <div className="mb-3">
+            <EditableInput
+              updateFieldWithAPI={updateField}
+              initialFieldValue={username}
+              setFieldValue={setUserName}
+              fieldName="username"
+              label="Username"
+            />
+          </div>
+          <div className="mb-3">
+            <EditableInput
+              updateFieldWithAPI={updateField}
+              initialFieldValue={displayName}
+              setFieldValue={setDisplayName}
+              fieldName="displayName"
+              label="Display Name"
+            />
+          </div>
+          <div className="mb-3">
+            <EditableInput
+              updateFieldWithAPI={updateField}
+              initialFieldValue={bio}
+              setFieldValue={setBio}
+              fieldName="bio"
+              label="Bio"
+            />
+          </div>
         </div>
       </div>
     </>

@@ -1,6 +1,7 @@
 // write higher order component to wrap any component with dark background
 
 import React from "react";
+import { BackIcon } from "../icons";
 
 type SidebarProps = {
   title: string;
@@ -25,7 +26,7 @@ export const LeftSideBar: React.FC<SidebarProps> = ({
         <div className="p-4 h-14"></div>
         <div className="h-16 flex items-center px-4">
           <div className="w-6 cursor-pointer" onClick={hideSidebar}>
-            <svg
+            {/* <svg
               fill="none"
               stroke="currentColor"
               strokeWidth={1.5}
@@ -38,7 +39,8 @@ export const LeftSideBar: React.FC<SidebarProps> = ({
                 strokeLinejoin="round"
                 d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
               />
-            </svg>
+            </svg> */}
+            <BackIcon />
           </div>
           <h2 className="ml-3 font-medium text-lg">{title}</h2>
         </div>

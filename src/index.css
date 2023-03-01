@@ -2,15 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  overflow: hidden;
+}
+
 html.dark {
   color-scheme: dark;
 }
+.font-shantell-sans {
+  font-family: 'Shantell Sans', cursive;
+}
 
 .sidebar-fill-remaining-height {
-  height: calc(100vh - 7.5rem); /* total height - height of search and profile div on sidebar */
+  height: calc(
+    100vh - 7.5rem
+  ); /* total height - height of search and profile div on sidebar */
+  overflow-y: auto;
 }
 
 .slide-transition {
   transition-duration: 200ms;
   transition-timing-function: ease-out;
+}
+
+.chat-bubble-own {
+  display: flex;
+  justify-content: flex-end;
+}
+.chat-bubble-own > span {
+  background-color: #7e22ce;
+  color: white;
+  max-width: 70%;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.5rem;
+  position: relative;
+  margin-bottom: 0.2rem;
+}
+.chat-bubble-own > span:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 1rem 1rem 0 0;
+  border-color: #7e22ce transparent;
+  right: -0.5rem;
+  top: 0;
+}
+.chat-bubble-own + .chat-bubble-own > span::after {
+  border: none;
+}
+
+.chat-bubble-other {
+  display: flex;
+  justify-content: flex-start;
+}
+.chat-bubble-other > span {
+  background-color: #e5e7eb;
+  color: black;
+  max-width: 70%;
+  padding: 0.5rem 0.8rem;
+  border-radius: 0.5rem;
+  position: relative;
+  margin-bottom: 0.2rem;
+}
+html.dark .chat-bubble-other > span {
+  background-color: #4b5563;
+  color: #f5f5f5;
+}
+.chat-bubble-other > span:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 1rem 1rem 0;
+  border-color: transparent #e5e7eb transparent transparent;
+  left: -0.5rem;
+  top: 0;
+}
+html.dark .chat-bubble-other > span:after {
+  border-color: transparent #4b5563 transparent transparent;
+}
+.chat-bubble-other + .chat-bubble-other > span::after {
+  border: none;
+}
+
+.chat-bubble-own:has(+ .chat-bubble-other),
+.chat-bubble-other:has(+ .chat-bubble-own) {
+  margin-bottom: 0.5rem;
 }

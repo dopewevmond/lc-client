@@ -1,65 +1,68 @@
 import { useAuth } from "../hooks/useAuth";
 import { useChat } from "../hooks/useChat";
 import { useRef, useState } from "react";
-import { Toast } from "flowbite-react";
+import { Toast, Tooltip } from "flowbite-react";
 import { ChatInfo } from "../components/ChatInfo";
 import { ChatSearchInput } from "../components/SearchBar";
 import { ProfileSideBar } from "../components/ProfileSideBar";
 import { NewChatSideBar } from "../components/NewChatSideBar";
 import { LeftSideBar } from "../components/LeftSideBar";
-import { useAppSelector } from "../redux/store";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { selectHasOpenedChat } from "../redux/chatSlice";
 import { Outlet } from "react-router-dom";
+import { RightSideBar } from "../components/RightSideBar";
+import { closeNewChat, closeProfile, openNewChat, openProfile, selectIsNewChatSideBarOpen, selectIsProfileSideBarOpen } from "../redux/sideBarSlice";
+import { MessageIcon } from "../icons";
+import { useSocket } from "../hooks/useSocket";
 
 export const HomePage = () => {
-  const { logout } = useAuth();
-  const [profileVisible, setProfileVisible] = useState(false);
-  const [newChatVisible, setNewChatVisible] = useState(false);
-  const hideProfileSidebar = () => setProfileVisible(false);
-  const hideNewChatBar = () => setNewChatVisible(false);
+  // const { logout } = useAuth();
+  useSocket();
+  const profileVisible = useAppSelector(selectIsProfileSideBarOpen);
+  const newChatVisible = useAppSelector(selectIsNewChatSideBarOpen);
+  const dispatch = useAppDispatch();
   const hasOpenedChat = useAppSelector(selectHasOpenedChat);
-  // const { error, socketId, isOnline, messages, sendMessage } = useChat();
+  const { isOnline } = useChat();
   return (
     <div>
       <LeftSideBar
         isVisible={profileVisible}
-        hideSidebar={hideProfileSidebar}
+        hideSidebar={() => {
+          dispatch(closeProfile())
+        }}
         title="Profile"
       >
-        <ProfileSideBar />
+        <ProfileSideBar isOpened={profileVisible} />
       </LeftSideBar>
       <LeftSideBar
         isVisible={newChatVisible}
-        hideSidebar={hideNewChatBar}
+        hideSidebar={() => {
+          dispatch(closeNewChat())
+        }}
         title="New Chat"
       >
-        <NewChatSideBar hideSideBar={hideNewChatBar} />
+        <NewChatSideBar hideSideBar={() => {
+          dispatch(closeNewChat())
+        }} />
       </LeftSideBar>
       <div className="flex h-screen overflow-hidden bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white">
         <div className="w-[300px] lg:w-[400px] xl:w-[500px] h-screen border-r-2 border-r-gray-400 dark:border-r-gray-600">
           <div className="px-4 h-14 flex justify-between items-center">
             <div
               className="cursor-pointer w-12 h-12 rounded-full bg-primary-700"
-              onClick={() => setProfileVisible(true)}
+              onClick={() => { dispatch(openProfile()) }}
             ></div>
-            <div
-              className="cursor-pointer"
-              onClick={() => setNewChatVisible(true)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
+            <div className="font-shantell-sans text-2xl -tracking-[0.1em] text-gray-600 dark:text-gray-300 pointer-events-none select-none">Chatty</div>
+            <div className="flex items-center">
+              <Tooltip content={isOnline ? 'online' : 'offline'} placement="left">
+                <div className={`rounded-full h-4 w-4 p-1 mr-2 bg-green-600 ${isOnline ? 'bg-green-600': 'bg-red-600'}`}></div>
+              </Tooltip>
+              <button
+                className="cursor-pointer"
+                onClick={() => { dispatch(openNewChat()) }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
-                />
-              </svg>
+                <MessageIcon />
+              </button>
             </div>
           </div>
           <div className="h-16 flex items-center px-4">
@@ -75,9 +78,8 @@ export const HomePage = () => {
           </div>
         </div>
 
-        {/* render outlet here */}
+        {/* render content on the right panel into outlet */}
         <Outlet />
-        {/* render outlet here */}
       </div>
     </div>
   );
