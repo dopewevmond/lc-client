@@ -3,11 +3,19 @@ import {
   login as loginThunk,
   signup as signupThunk,
   logout as logoutAction,
+  clearError,
 } from "../redux/authSlice";
 import { selectAuthError } from "../redux/authSlice";
 import type { ILoginCredentials, ISignupCredentials } from "../types";
+import { useEffect } from "react";
 
 export const useAuth = () => {
+  const error = useAppSelector(selectAuthError);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(clearError());
+  }, []);
+
   const initialLoginFormValues: ILoginCredentials = {
     username: "",
     password: "",
@@ -17,9 +25,6 @@ export const useAuth = () => {
     password: "",
     displayName: "",
   };
-
-  const error = useAppSelector(selectAuthError);
-  const dispatch = useAppDispatch();
 
   const login = async (
     formvalues: ILoginCredentials,

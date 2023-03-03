@@ -41,6 +41,9 @@ const authSlice = createSlice({
       sessionStorage.removeItem("username");
       sessionStorage.removeItem("id");
     },
+    clearError: (state) => {
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -66,7 +69,7 @@ const authSlice = createSlice({
         state.token = null;
         state.username = null;
         state.id = null;
-        state.error = "An error occurred while logging in";
+        state.error = "An error occurred. Verify credentials and try again";
       });
   },
 });
@@ -95,7 +98,7 @@ export const signup = createAsyncThunk(
   }
 );
 
-export const { logout } = authSlice.actions;
+export const { logout, clearError } = authSlice.actions;
 
 export const selectAuthIsLoggedIn = (state: RootState) => state.auth.isLoggedIn;
 export const selectAuthToken = (state: RootState) => state.auth.token;

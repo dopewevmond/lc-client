@@ -2,16 +2,25 @@ import React from "react";
 import { Formik, Form } from "formik";
 import { InputWrapper } from "../utils/InputWrapper";
 import { useAuth } from "../hooks/useAuth";
-import { Spinner } from "flowbite-react";
+import { Spinner, Toast } from "flowbite-react";
 import { loginSchema } from "../validators";
 import { useRedirect } from "../hooks/useRedirect";
 import { Link } from "react-router-dom";
 
 export const LoginPage = () => {
   useRedirect();
-  const { initialLoginFormValues: initialFormValues, login } = useAuth();
+  const { initialLoginFormValues: initialFormValues, login, error } = useAuth();
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
+      {error && (
+        <Toast className="fixed top-4 right-4">
+          <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+            ✕
+          </div>
+          <div className="ml-3 text-sm font-normal">{error}</div>
+          <Toast.Toggle />
+        </Toast>
+      )}
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
           {/* <img
@@ -29,12 +38,15 @@ export const LoginPage = () => {
             <Formik
               initialValues={initialFormValues}
               validationSchema={loginSchema}
-              onSubmit={(values, { setSubmitting }) => {
+              onSubmit={(values, { setSubmitting, setFieldValue }) => {
                 login(values, setSubmitting);
               }}
             >
               {({ isSubmitting }) => (
-                <Form className="space-y-2 md:space-y-3" data-testid="login-form">
+                <Form
+                  className="space-y-2 md:space-y-3"
+                  data-testid="login-form"
+                >
                   <div>
                     <InputWrapper
                       label="Username"

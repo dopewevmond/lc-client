@@ -1,7 +1,7 @@
 import React from "react";
 import { Formik, Form } from "formik";
 import { InputWrapper } from "../utils/InputWrapper";
-import { Spinner } from "flowbite-react";
+import { Spinner, Toast } from "flowbite-react";
 import { signupSchema } from "../validators";
 import { useAuth } from "../hooks/useAuth";
 import { Link } from "react-router-dom";
@@ -9,16 +9,24 @@ import { useRedirect } from "../hooks/useRedirect";
 
 export const SignupPage = () => {
   useRedirect();
-  const { initialSignupFormValues: initialFormValues, signup } = useAuth();
+  const {
+    initialSignupFormValues: initialFormValues,
+    signup,
+    error,
+  } = useAuth();
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
+      {error && (
+        <Toast className="fixed top-4 right-4" duration={1000}>
+          <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+            ✕
+          </div>
+          <div className="ml-3 text-sm font-normal">{error}</div>
+          <Toast.Toggle />
+        </Toast>
+      )}
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white">
-          {/* <img
-            className="w-8 h-8 mr-2"
-            src=""
-            alt="logo"
-          /> */}
           Chatty
         </div>
         <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
