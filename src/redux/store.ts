@@ -1,17 +1,31 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import authSliceReducer from "./authSlice";
-import chatSliceReducer from "./chatSlice";
+import chatSliceReducer, { openChat, receiveMessage, sendMessageAction } from "./chatSlice";
 import sideBarReducer from "./sideBarSlice";
+import profileReducer from "./profileSlice";
+import { enableMapSet } from 'immer';
+import { scrollDown } from "../utils/scrolldown";
+
+enableMapSet();
+
+const listenerMiddleWare = createListenerMiddleware();
+listenerMiddleWare.startListening({
+  matcher: isAnyOf(openChat, sendMessageAction, receiveMessage),
+  effect: scrollDown,
+});
 
 export const store = configureStore({
   reducer: {
     auth: authSliceReducer,
     chat: chatSliceReducer,
     sidebars: sideBarReducer,
+    profile: profileReducer,
   },
   middleware(getDefaultMiddleware) {
-    return getDefaultMiddleware({ serializableCheck: false });
+    return getDefaultMiddleware({ serializableCheck: false }).prepend(
+      listenerMiddleWare.middleware
+    );
   },
 });
 

@@ -1,11 +1,12 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useUserSearch } from "../hooks/useSearch";
-import { useDebouncedSearch } from "../hooks/useSearchInput";
+import { useSearchForUser } from "../hooks/useSearchForUser";
+import { useDebouncedSearch } from "../hooks/useDebouncedSearch";
 import { BackIcon, SearchIcon } from "../icons";
 import { openChat } from "../redux/chatSlice";
-import { useAppDispatch } from "../redux/store";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { Spinner } from "flowbite-react";
+import { selectIsNewChatSideBarOpen } from "../redux/sideBarSlice";
 
 type Props = {
   hideSideBar: () => void;
@@ -13,7 +14,9 @@ type Props = {
 
 export const NewChatSideBar = ({ hideSideBar }: Props) => {
   const dispatch = useAppDispatch();
-  const { searchResults, makeAPICall, resetResults, loading } = useUserSearch();
+  const chatSidebarOpen = useAppSelector(selectIsNewChatSideBarOpen);
+  const { searchResults, makeAPICall, resetResults, loading } =
+    useSearchForUser();
   const callAPIFunc = useCallback(makeAPICall, []); // without this a new function is created on every render and the debounce functionality wont work
   const {
     isFocused,
@@ -24,7 +27,17 @@ export const NewChatSideBar = ({ hideSideBar }: Props) => {
     handleInputOnBlur,
     handleInputOnFocus,
     setInputValue,
-  } = useDebouncedSearch(callAPIFunc);
+  } = useDebouncedSearch(callAPIFunc, 600);
+
+  useEffect(() => {
+    if (!chatSidebarOpen) {
+      return;
+    }
+    if (!inputRef || !inputRef.current) {
+      return;
+    }
+    inputRef.current.focus();
+  }, [chatSidebarOpen]);
 
   return (
     <>
@@ -46,8 +59,8 @@ export const NewChatSideBar = ({ hideSideBar }: Props) => {
             onChange={handleInputChange}
             onFocus={handleInputOnFocus}
             onBlur={handleInputOnBlur}
-            placeholder="Search for a user"
-            className="flex-1 text-gray-900 block p-2.5 dark:placeholder-gray-400 dark:text-white text-xs border-0 rounded-r-lg bg-gray-50 dark:bg-gray-700 focus:ring-0 focus:placeholder-white dark:focus:placeholder-gray-700"
+            placeholder="Search by username or display name"
+            className="flex-1 text-gray-900 block p-2.5 dark:placeholder-gray-400 dark:text-white text-xs border-0 rounded-r-lg bg-gray-50 dark:bg-gray-700 focus:ring-0"
           />
         </div>
       </div>

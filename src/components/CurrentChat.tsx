@@ -1,32 +1,40 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { BackIcon, PaperPlane } from "../icons";
-import { openChat, selectOpenedChat } from "../redux/chatSlice";
+import {
+  openChat,
+  selectChatsWithUser,
+  selectOpenedChat,
+} from "../redux/chatSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { IUser } from "../types";
 import { axiosInstance } from "../utils/axiosInstance";
 import { useParams } from "react-router-dom";
-import { selectAuthToken } from "../redux/authSlice";
-import {
-  openChatDetails,
-  selectIsChatDetailsOpen,
-} from "../redux/sideBarSlice";
+import { selectAuthId, selectAuthToken } from "../redux/authSlice";
+import { openChatDetails } from "../redux/sideBarSlice";
 import { ChatDetails } from "./ChatDetails";
 import { useChat } from "../hooks/useChat";
+import { scrollDown } from "../utils/scrolldown";
 
 export const CurrentChat = (props: any) => {
   const currentChat = useAppSelector(selectOpenedChat);
   const chatAlreadyOpened = useAppSelector(selectOpenedChat);
-  const chatDetailsVisible = useAppSelector(selectIsChatDetailsOpen);
+  const socketId = useAppSelector(selectAuthId);
   const token = useAppSelector(selectAuthToken);
   const [message, setMessage] = useState("");
   const { id } = useParams();
+  const selectUserChat = selectChatsWithUser(String(id));
+  const chatsWithUser = useAppSelector(selectUserChat); // can be undefined if no chats exists between these users
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { sendMessage } = useChat();
   const dispatch = useAppDispatch();
   useEffect(() => {
-    if (!chatAlreadyOpened) {
+    if (!chatAlreadyOpened || chatAlreadyOpened._id !== id) {
+      if (chatsWithUser) {
+        dispatch(openChat(chatsWithUser.details));
+        return;
+      }
       const fetchChatInfo = async () => {
         try {
           setLoading(true);
@@ -41,8 +49,10 @@ export const CurrentChat = (props: any) => {
         }
       };
       fetchChatInfo();
+    } else {
+      scrollDown();
     }
-  }, []);
+  }, [id]);
 
   if (loading) return <div>Loading...</div>;
 
@@ -85,25 +95,23 @@ export const CurrentChat = (props: any) => {
             View profile
           </div>
         </div>
-        <div className="p-5 h-[calc(100%_-_7rem)] overflow-y-auto bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-50 text-sm">
-          <div className="chat-bubble-own">
-            <span>hey</span>
-          </div>
-          <div className="chat-bubble-other">
-            <span>what's up</span>
-          </div>
-          <div className="chat-bubble-own">
-            <span>nothing interesting</span>
-          </div>
-          <div className="chat-bubble-own">
-            <span>im just checking on you</span>
-          </div>
-          <div className="chat-bubble-other">
-            <span>that's sus man, foh</span>
-          </div>
-          <div className="chat-bubble-own">
-            <span>whatever man</span>
-          </div>
+        <div id="chat-bubble-container" className="p-5 h-[calc(100%_-_7rem)] overflow-y-auto bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-50 text-sm">
+          {chatsWithUser && chatsWithUser.messages && (
+            <>
+              {chatsWithUser.messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={
+                    socketId === msg.senderId
+                      ? "chat-bubble-own"
+                      : "chat-bubble-other"
+                  }
+                >
+                  <span>{msg.message}</span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
         <form
           className="h-12 w-full flex"
@@ -111,7 +119,7 @@ export const CurrentChat = (props: any) => {
             e.preventDefault();
             if (message.trim().length > 0) {
               sendMessage({ message, recipientId: _id });
-              setMessage('');
+              setMessage("");
             }
           }}
         >

@@ -9,6 +9,7 @@ import {
   selectSocket,
   selectInitializedSocket,
   removeSocket,
+  receiveMessage,
 } from "../redux/chatSlice";
 import { BASE_URL } from "../utils/constants";
 
@@ -60,6 +61,7 @@ export const useSocket = () => {
 
     socket.on("receiveMessage", (msg) => {
       console.log(msg);
+      dispatch(receiveMessage(msg));
     });
 
     console.log("finished adding event listeners");

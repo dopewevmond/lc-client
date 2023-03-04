@@ -1,39 +1,33 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect } from "react";
 import { selectAuthId, selectAuthToken } from "../redux/authSlice";
-import { useAppSelector } from "../redux/store";
-import type { IUser } from "../types";
+import {
+  fetchUserData,
+  selectBio,
+  selectDisplayName,
+  selectError,
+  selectLoadingProfileDetails,
+  selectUsername,
+  setUsername,
+} from "../redux/profileSlice";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { axiosInstance } from "../utils/axiosInstance";
 import { EditableInput } from "./EditableInput";
 
-export const ProfileSideBar = ({ isOpened }: { isOpened: boolean }) => {
+export const ProfileSideBar = () => {
   const id = useAppSelector(selectAuthId);
   const token = useAppSelector(selectAuthToken);
-  const [loadingProfileDetails, setLoadingProfileDetails] = useState(false);
-  const [username, setUserName] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [bio, setBio] = useState("");
-  const [avatar, setAvatar] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const loadingProfileDetails = useAppSelector(selectLoadingProfileDetails);
+  const username = useAppSelector(selectUsername);
+  const displayName = useAppSelector(selectDisplayName);
+  const bio = useAppSelector(selectBio);
+  const error = useAppSelector(selectError);
+
+  const dispatch = useAppDispatch();
   useEffect(() => {
-    if (id == null) return;
-    const fetchUserData = async () => {
-      setLoadingProfileDetails(true);
-      try {
-        const { data } = await axiosInstance.get<IUser>(`/users/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserName(data.username);
-        setDisplayName(data.displayName);
-        setBio(data.bio);
-        setAvatar(data.avatar ?? null);
-      } catch (_err) {
-        setError("An error occurred while fetching your user details");
-      } finally {
-        setLoadingProfileDetails(false);
-      }
-    };
-    fetchUserData();
-  }, [id]);
+    if (id == null || token == null) return;
+    dispatch(fetchUserData({ token, id }));
+  }, [id, token]);
+
   const updateField = async (field: string, value: string) => {
     await axiosInstance.patch(
       "/users/edit-profile",
@@ -42,16 +36,26 @@ export const ProfileSideBar = ({ isOpened }: { isOpened: boolean }) => {
     );
   };
 
+  const setUserName: any = (username: string) =>
+    dispatch(setUsername(username));
+  const setDisplayName: any = (displayName: string) =>
+    dispatch(setDisplayName(displayName));
+  const setBio: any = (bio: string) => dispatch(setBio(bio));
+
   if (loadingProfileDetails) return <>Loading...</>;
   if (error) return <>{error}</>;
   if (!Boolean(username))
-    return <>An error occurred while loadingProfileDetails...</>;
+    return (
+      <div className="p-4">
+        An error occurred while loading profile details...
+      </div>
+    );
   return (
     <>
       <div className="p-4">
         <div className="h-48 w-48 bg-primary-700 mx-auto rounded-full mb-4"></div>
 
-        <div className={''}>
+        <div className={""}>
           <div className="mb-3">
             <EditableInput
               updateFieldWithAPI={updateField}

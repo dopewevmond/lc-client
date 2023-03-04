@@ -4,7 +4,7 @@ import { IUser } from "../types";
 import { selectAuthToken } from "../redux/authSlice";
 import { useAppSelector } from "../redux/store";
 
-export const useUserSearch = () => {
+export const useSearchForUser = () => {
   const [searchResults, setSearchResults] = useState<IUser[] | null>(null);
   const [loading, setLoading] = useState(false);
   const token = useAppSelector(selectAuthToken);

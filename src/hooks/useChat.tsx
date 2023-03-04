@@ -1,39 +1,60 @@
-import { useAppSelector } from "../redux/store";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { selectAuthId } from "../redux/authSlice";
 import {
-  selectChatError,
   selectIsOnline,
-  selectMessages,
+  selectOpenedChat,
   selectSocket,
+  sendMessageAction,
 } from "../redux/chatSlice";
+import { IUser } from "../types";
+import {
+  selectBio,
+  selectDisplayName,
+  selectUsername,
+} from "../redux/profileSlice";
 
-interface IMessage {
+type IMessage = {
   message: string;
   recipientId: string;
-}
+};
 
-interface IMessageToSend extends IMessage {
-  senderId: string;
-}
+export type IMessageToSend = IMessage &
+  IUser & {
+    senderId: string;
+  };
 
 export const useChat = () => {
   const socket = useAppSelector(selectSocket);
-  const messages = useAppSelector(selectMessages);
-  const error = useAppSelector(selectChatError);
   const isOnline = useAppSelector(selectIsOnline);
   const userId = useAppSelector(selectAuthId);
+  const username = useAppSelector(selectUsername);
+  const displayName = useAppSelector(selectDisplayName);
+  const bio = useAppSelector(selectBio);
+  const openChatDetails = useAppSelector(selectOpenedChat);
+  const dispatch = useAppDispatch();
 
   const sendMessage = (msgBody: IMessage) => {
-    if (!socket || !userId) return;
-    const msg: IMessageToSend = { ...msgBody, senderId: userId };
-    console.log(msg);
-    socket.emit("sendMessage", msg);
+    if (!socket || !userId || !openChatDetails) return;
+    const recipientDetails: IUser = { ...openChatDetails };
+    const senderDetails: IUser = {
+      _id: userId,
+      username,
+      displayName,
+      bio,
+      dateJoined: "",
+    };
+    dispatch(
+      sendMessageAction({ ...msgBody, ...recipientDetails, senderId: userId })
+    );
+    socket.emit("sendMessage", {
+      ...msgBody,
+      ...senderDetails,
+      senderId: userId,
+    });
   };
 
   return {
-    error,
     isOnline,
-    messages,
     sendMessage,
   };
 };

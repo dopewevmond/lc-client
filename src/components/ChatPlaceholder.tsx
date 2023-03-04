@@ -10,7 +10,7 @@ export const OpenChatPlaceholder = () => {
             <ComputerIcon />
           </div>
           <div>
-            <p className="text-sm text-center">
+            <p className="text-md text-center">
               You have no open chats <br />
               Click on a chat in the left panel to get started.
             </p>
