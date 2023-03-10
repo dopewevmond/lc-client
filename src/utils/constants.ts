@@ -1,1 +1,1 @@
-export const BASE_URL = 'https://www.nodesocket.software';
+export const BASE_URL = 'https://socketserver-1ab5.onrender.com';
