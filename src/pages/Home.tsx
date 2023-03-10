@@ -1,5 +1,5 @@
 import { useChat } from "../hooks/useChat";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Tooltip } from "flowbite-react";
 import { ChatInfo } from "../components/ChatInfo";
 import { ProfileSideBar } from "../components/ProfileSideBar";
@@ -12,6 +12,8 @@ import {
   closeProfile,
   openNewChat,
   openProfile,
+  closeChatDetails,
+  selectIsChatDetailsOpen,
   selectIsNewChatSideBarOpen,
   selectIsProfileSideBarOpen,
 } from "../redux/sideBarSlice";
@@ -27,7 +29,11 @@ import {
 import { useSocket } from "../hooks/useSocket";
 import { ThemeContext } from "../context/ThemeContext";
 import LogoutModal from "../components/LogoutModal";
-import { selectChats } from "../redux/chatSlice";
+import {
+  selectChats,
+  selectHasOpenedChat,
+  closeChat,
+} from "../redux/chatSlice";
 import { IUser } from "../types";
 import { useDebouncedSearch } from "../hooks/useDebouncedSearch";
 
@@ -44,19 +50,22 @@ export const HomePage = () => {
   );
   const profileVisible = useAppSelector(selectIsProfileSideBarOpen);
   const newChatVisible = useAppSelector(selectIsNewChatSideBarOpen);
+  const chatDetailsVisible = useAppSelector(selectIsChatDetailsOpen);
+  const hasOpenedChat = useAppSelector(selectHasOpenedChat);
   const chats = useAppSelector(selectChats);
 
   const results: IUser[] = [];
   const searchFunction = async (searchVal: string) => {
     if (Boolean(searchVal.trim())) {
-      chats && Object.keys(chats).map((otherUserId) => {
-        if (
-          chats[otherUserId].details.displayName.includes(searchVal) ||
-          chats[otherUserId].details.username.includes(searchVal)
-        ) {
-          results.push(chats[otherUserId].details);
-        }
-      });
+      chats &&
+        Object.keys(chats).map((otherUserId) => {
+          if (
+            chats[otherUserId].details.displayName.includes(searchVal) ||
+            chats[otherUserId].details.username.includes(searchVal)
+          ) {
+            results.push(chats[otherUserId].details);
+          }
+        });
     }
     setSearchChatsResults(results);
     setSearchingChats(true);
@@ -72,6 +81,35 @@ export const HomePage = () => {
     handleSearchIconClick,
     setInputValue,
   } = useDebouncedSearch(searchFunction, 600);
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      if (showLogoutModal) {
+        return setShowLogoutModal(false);
+      }
+      if (chatDetailsVisible) {
+        return dispatch(closeChatDetails());
+      }
+      if (hasOpenedChat) {
+        navigate("/");
+        return dispatch(closeChat());
+      }
+      if (profileVisible) {
+        return dispatch(closeProfile());
+      }
+      if (newChatVisible) {
+        return dispatch(closeNewChat());
+      }
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [showLogoutModal, chatDetailsVisible, hasOpenedChat, profileVisible, newChatVisible]);
+
   return (
     <div>
       {showLogoutModal && (
